@@ -1,42 +1,49 @@
-# ML System Design & Data Engineering
-> Lecture Notes · Topics 1–8
+# ML System Design & Data Engineering — Lecture 1
+> Topics: System Design · Scaling · Load Balancer · DB Replication · CDN · Interview Frameworks
 
 ---
 
 ## 1. What is ML System Design?
 
-The intersection of two disciplines applied to building ML-powered products:
+> **The intersection of System Design and Data Engineering**
 
 | Discipline | Description |
 |---|---|
 | **System Design** | Architecting software systems — how components communicate, scale, and stay reliable. |
 | **Data Engineering** | Pipelines, storage, and processing that feed models with the right data. |
 
-In Machine Learning, both must work together — models are only as good as the infrastructure serving them.
+> 💡 In Machine Learning, both must work together — models are only as good as the infrastructure serving them.
 
 ---
 
 ## 2. Scaling Strategies
 
-### Vertical Scaling
+> **Two ways to handle increased load — scale up or scale out**
+
+### ⬆️ Vertical Scaling
 Upgrade a single machine to a more powerful one. Simpler but has an upper limit.
 
 ```
 [ 1 TB / 8 GB ]  →  [ 4 TB / 32 GB ]
 ```
 
-### Horizontal Scaling
+### ↔️ Horizontal Scaling
 Add more machines of the same spec. Enables near-infinite scale-out.
 
 ```
 [ 1 TB / 8 GB ]  →  [ 1 TB / 8 GB ] + [ 1 TB / 8 GB ] + [ 1 TB / 8 GB ]
 ```
 
+| Strategy | Pros | Cons |
+|---|---|---|
+| **Vertical** | Simple, no code changes | Hard ceiling on resources |
+| **Horizontal** | Near-infinite scale | More complex to manage |
+
 ---
 
 ## 3. Load Balancer & Routing
 
-A load balancer sits at a **public IP** and distributes traffic across multiple **private-IP** servers, each handling a subset of users.
+> **Sits at a public IP and distributes traffic across private-IP servers**
 
 ```
 User (Vaibhav) ──→ Load Balancer (Public IP) ──→ IP1 (A–M)
@@ -46,22 +53,24 @@ User (Vaibhav) ──→ Load Balancer (Public IP) ──→ IP1 (A–M)
 
 Users are sharded by name range or hash:
 
-| Server | Name Range | Example |
+| Server | Name Range | Note |
 |---|---|---|
 | IP1 | A – M | All users whose name starts A through M |
-| IP2 | N – X | All users whose name starts N through X (e.g. Vaibhav → V) |
+| IP2 | N – X | e.g. Vaibhav → V → routed here |
 | IP3 | Y – Z | All users whose name starts Y through Z |
+
+> 💡 `user name = Vaibhav` → starts with **V** → goes to **IP2**
 
 ---
 
 ## 4. Database Replication — Lower Write, Heavy Read
 
-Separate write and read concerns using a **master-slave (primary-replica)** pattern.
+> **Master-slave (primary-replica) pattern to separate reads and writes**
 
 ```
-Write ──→ Master DB ──→ replicates to ──→ Slave DB 1
-                                      ──→ Slave DB 2  } serve Read requests
-                                      ──→ Slave DB 3
+Write ──→ Master DB ──→ replicates to ──→ Slave DB 1  ┐
+                                      ──→ Slave DB 2  ├─ serve Read requests
+                                      ──→ Slave DB 3  ┘
 ```
 
 | Component | Role |
@@ -72,23 +81,25 @@ Write ──→ Master DB ──→ replicates to ──→ Slave DB 1
 | **Cache (RAM)** | Memcache/Redis sits in front of reads for ultra-fast responses |
 | **Eviction Algorithm** | Decides which cache entries to drop when RAM is full (e.g. LRU, LFU) |
 
+> 💡 Heavy read systems benefit the most — writes go to one place, reads are spread across many replicas.
+
 ---
 
 ## 5. Full System Architecture
 
-Combining the load balancer, app servers, and the DB tier with caching:
+> **Load balancer + app servers + DB tier with caching — combined**
 
 ```
-User  ──→  Load Balancer  ──→  App Server IP1  ──→  Cache (RAM)  ──→  DB Replicas
-(Vaibhav)  (Public IP)    ──→  App Server IP2                    ──→  Master DB
-                          ──→  App Server IP3
+User      ──→  Load Balancer  ──→  App Server IP1  ──→  Cache (RAM)  ──→  DB Replicas
+(Vaibhav)      (Public IP)    ──→  App Server IP2                    ──→  Master DB
+                              ──→  App Server IP3
 ```
 
 ---
 
 ## 6. CDN — Content Delivery Network
 
-Static assets (images, JS, CSS) are cached at geographically distributed **CDN edge servers**. Users fetch from the nearest node, reducing latency and origin server load.
+> **Static assets cached at geographically distributed edge servers**
 
 ```
 User (Vaibhav) ──→ CDN Server (nearest edge)
@@ -110,7 +121,7 @@ User (Vaibhav) ──→ CDN Server (nearest edge)
 
 ## 7. Engineering Interview Framework — System Design
 
-A structured **6-step** approach for tackling system design interview questions:
+> **A structured 6-step approach for system design interview questions**
 
 | Step | Phase | Description |
 |---|---|---|
@@ -125,7 +136,7 @@ A structured **6-step** approach for tackling system design interview questions:
 
 ## 8. ML Engineering Interview Framework
 
-A **7-step** framework extending system design with ML-specific stages:
+> **Extends system design with 7 ML-specific stages**
 
 | Step | Phase | Description |
 |---|---|---|
@@ -137,6 +148,8 @@ A **7-step** framework extending system design with ML-specific stages:
 | 6 | **Deployment & serving** | Batch vs real-time, latency constraints, infrastructure |
 | 7 | **Monitoring** | Data drift, model drift, alerting, retraining triggers |
 
+> 💡 Steps 1–3 mirror the System Design framework. Steps 4–7 are ML-specific additions.
+
 ---
 
-*ML System Design & Data Engineering · Lecture Notes*
+*ML System Design & Data Engineering · Lecture 1 Notes*
